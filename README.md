@@ -42,6 +42,9 @@ Behind the scenes, when the user arrives at the callback URL, JupyterHub (via `o
 
 Our JupyterHub config says: `c.GenericOAuthenticator.username_claim = "sub"`, which means that the value of `sub` will be used to generate the username inside JupyterHub. I don't believe this is a magic variable, we should be able to change this to anything we like.
 
+As you might expect, once authenticated to JupyterHub, you have access to a Jupyter instance:
+![Jupyter Instance](jupyter_instance.png)
+
 
 ## Setup
 This can possibly be run on a single host, two hosts or three hosts.
