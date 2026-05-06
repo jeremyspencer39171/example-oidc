@@ -12,7 +12,36 @@ We have three components:
 - An API written in Python using FastAPI
 - JupyterHub (our service provider, the resource the user actually wants to use)
 
-The workflow... TODO
+Set all three of these up and run them at the same time, as described below.
+
+Visit the JupyterHub URL (e.g. `https://jupyterhub.hostname:8000/`) and you'll see a page like this:
+![JupyterHub login page](jupyterhub_login_page.png)
+Click the big orange button and you'll be redirected to something like: `https://ui.hostname/login?response_type=code&client_id=jupyterhub-client&redirect_uri=https://jupyterhub.hostname:8000/hub/oauth_callback&scope=openid%20profile%20email&state=ggGggGG0GG9gGGG6GGGgGgGgG2GgGGGgG2G0GGG2GgGgGgG5G2GgGgG2GGggGgG9`
+
+This happens because JupyterHub has told our user (via a 302 redirect) that they should visit `https://api.hostname:81/authorize?response_type=code&redirect_uri=https%3A%2F%2Fjupyterhub.hostname%3A8000%2Fhub%2Foauth_callback&client_id=jupyterhub-client&code_challenge=gGggg6gGGggGgGgG-0G7GG2ggggGGGggGgggGggGgGG&code_challenge_method=S256&state=ggGggGG0GG9gGGG6GGGgGgGgG2GgGGGgG2G0GGG2GgGgGgG5G2GgGgG2GGggGgG9&scope=openid+profile+email`. The API then sends a 307 redirect to the `/login` link above.
+
+`/login` on the UI looks like:
+![UI Login page](ui_login_page.png)
+
+The credentials from this example are in `main.py` of the backend code, and are currently defaulting to:
+- Email: `user@example.com`
+- Password: `123`
+
+Obviously in the real world, this wouldn't be hard coded and so simple to guess, but it's quite handy when testing things out (when there's no danger of an attacker).
+
+Entering those credentials and pressing `Login` will kick off the authentication by passing those credentials to the backend API.
+The backend API then matches those against the credentials it expects, if incorrect, you don't log in and get a simple `{"detail":"Invalid credentials"}` as a response.
+
+If the credentials do match, then the `/login` endpoint we were at responds with a 302 (redirect code). The user is then redirected back to `https://jupyterhub.hostname:8000/hub/oauth_callback&scope=openid%20profile%20email&state=ggGggGG0GG9gGGG6GGGgGgGgG2GgGGGgG2G0GGG2GgGgGgG5G2GgGgG2GGggGgG9`, as expected from the previous URL's `redirect_uri` parameter.
+
+This callback URL needs to match in both the backend API and the JupyterHub config, as shown in the example config files.
+
+From the user's perspective, they then get another 302 response to take them to the URL they should be at. I believe it'll just start your server automatically so you'll end up at `https://jupyterhub.hostname:8000/user/user123/lab`.
+
+Behind the scenes, when the user arrives at the callback URL, JupyterHub (via `oauthenticator`) will make a request to the `/token` endpoint of the API to ensure that the user is indeed authenticated and correct. If so, it then makes a request to `/userinfo` on the API to get information. In our example that is `sub`, `email`, and `name`.
+
+Our JupyterHub config says: `c.GenericOAuthenticator.username_claim = "sub"`, which means that the value of `sub` will be used to generate the username inside JupyterHub. I don't believe this is a magic variable, we should be able to change this to anything we like.
+
 
 ## Setup
 This can possibly be run on a single host, two hosts or three hosts.
@@ -91,10 +120,12 @@ You can just search this repo for `.hostname` and you'll find three options (ign
 - `ui.hostname`
 - `api.hostname`
 - `jupyterhub.hostname`
+
 These will need to be modified to the actual hostname these can be found at. For example:
 - `host-172-16-111-111.host.ac.uk`
 - `host-172-16-111-112.host.ac.uk`
 - `host-172-16-111-113.host.ac.uk`
+
 In the UI, these are in `callback.svelte` and `login.svelte` and should both be directed at the API hostname.
 
 
@@ -121,10 +152,12 @@ You can just search this repo for `.hostname` and you'll find three options (ign
 - `ui.hostname`
 - `api.hostname`
 - `jupyterhub.hostname`
+
 These will need to be modified to the actual hostname these can be found at. For example:
 - `host-172-16-111-111.host.ac.uk`
 - `host-172-16-111-112.host.ac.uk`
 - `host-172-16-111-113.host.ac.uk`
+
 For the API, these are in `config.py` and `main.py`.
 
 #### Start the API
@@ -154,10 +187,12 @@ You can just search this repo for `.hostname` and you'll find three options (ign
 - `ui.hostname`
 - `api.hostname`
 - `jupyterhub.hostname`
+
 These will need to be modified to the actual hostname these can be found at. For example:
 - `host-172-16-111-111.host.ac.uk`
 - `host-172-16-111-112.host.ac.uk`
 - `host-172-16-111-113.host.ac.uk`
+
 For JupyterHub config, these are the `OIDC_BASE` which is the URL for our API, and `oauth_callback_url` which is the url we send users back to after they've logged in to the UI.
 
 #### Ensure that Python accepts your certificates
