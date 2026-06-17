@@ -129,7 +129,7 @@ These will need to be modified to the actual hostname these can be found at. For
 - `host-172-16-111-112.host.ac.uk`
 - `host-172-16-111-113.host.ac.uk`
 
-In the UI, these are in `callback.svelte` and `login.svelte` and should both be directed at the API hostname.
+In the UI, this is in `login.svelte` and should be directed at the API hostname.
 
 
 #### Running the UI in dev mode:

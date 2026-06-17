@@ -9,7 +9,7 @@
 
   let routes = [
     { path: "/login", component: Login },
-    { path: "/callback", component: Callback },
+    //{ path: "/callback", component: Callback },
   ];
 </script>
 
