@@ -116,6 +116,11 @@ Listen 443 https
 </VirtualHost>
 ```
 
+Start/Restart Apache (httpd) as necessary:
+```sh
+systemctl restart httpd
+```
+
 #### Configuration
 Since this is just a quick demonstration, we don't have nice config files, instead we need to change any instances of `*.hostname` to the actual hostnames we want to use.
 
@@ -224,6 +229,7 @@ This is the same exception we would get in JupyterHub if the certificate isn't t
 ```sh
 # Install certificate to trust store
 cp /etc/ssl/certs/my-cert-chain.crt /etc/pki/ca-trust/source/anchors/
+update-ca-trust
 ```
 
 #### Start JupyterHub

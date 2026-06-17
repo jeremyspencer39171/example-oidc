@@ -4,12 +4,10 @@
   import viteLogo from "./assets/vite.svg";
   import heroImg from "./assets/hero.png";
   import Counter from "./lib/Counter.svelte";
-  import Callback from "./routes/callback.svelte";
   import Login from "./routes/login.svelte";
 
   let routes = [
     { path: "/login", component: Login },
-    //{ path: "/callback", component: Callback },
   ];
 </script>
 
